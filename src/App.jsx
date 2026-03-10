@@ -34,6 +34,8 @@ export default function App() {
   const [cmdDmg, setCmdDmg] = useState(initCmdDmg)
   const [editingPlayer, setEditingPlayer] = useState(null)
   const [tempName, setTempName] = useState('')
+  const [menuOpen, setMenuOpen] = useState(false)
+  const [layout, setLayout] = useState('standard')
 
   const adjustLife = useCallback((id, delta) => {
     setPlayers(prev => prev.map(p => p.id === id ? { ...p, life: p.life + delta } : p))
@@ -76,11 +78,11 @@ export default function App() {
     setEditingPlayer(null)
   }
 
-  const rotations = [180, 180, 0, 0]
+  const rotations = layout === 'sides' ? [180, -90, 90, 0] : [180, 180, 0, 0]
 
   return (
     <div className="app">
-      <div className="grid">
+      <div className={`grid layout-${layout}`}>
         {players.map((player, idx) => (
           <div key={player.id} className="cell">
             <PlayerPanel
@@ -92,7 +94,7 @@ export default function App() {
             />
           </div>
         ))}
-        <button className="center-btn" onClick={resetAll} title="Alles zurücksetzen">↺</button>
+        <button className="center-btn" onClick={() => setMenuOpen(true)}>☰</button>
       </div>
 
       {editingPlayer && editingPlayer.mode === 'name' && (
@@ -153,6 +155,26 @@ export default function App() {
             onAdjust={adjustCmdDmg}
             onClose={() => setEditingPlayer(null)}
           />
+        </Modal>
+      )}
+
+      {menuOpen && (
+        <Modal onClose={() => setMenuOpen(false)}>
+          <div className="modal-content menu-panel">
+            <h3>Menü</h3>
+            <div className="menu-buttons">
+              <button onClick={() => { resetAll(); setMenuOpen(false) }}>↺ Zurücksetzen</button>
+            </div>
+            <div className="menu-section-title">Sitzordnung</div>
+            <div className="menu-buttons">
+              <button className={layout === 'standard' ? 'active' : ''} onClick={() => setLayout('standard')}>
+                ▦ Standard (2×2)
+              </button>
+              <button className={layout === 'sides' ? 'active' : ''} onClick={() => setLayout('sides')}>
+                ☰ Einer oben, zwei Mitte, einer unten
+              </button>
+            </div>
+          </div>
         </Modal>
       )}
     </div>

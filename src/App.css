@@ -48,7 +48,7 @@ html, body, #root {
   align-items: center;
   justify-content: center;
   gap: 6px;
-  padding: 0 60px;
+  padding: 0 43%;
 }
 
 .player-name {
@@ -84,7 +84,7 @@ html, body, #root {
   position: absolute;
   top: 0;
   bottom: 0;
-  width: 52px;
+  width: 35%;
   background: rgba(0,0,0,0.12);
   border: none;
   font-size: 36px;
@@ -366,6 +366,61 @@ html, body, #root {
   color: #ff4444;
 }
 
+/* Menu */
+.menu-panel h3 {
+  margin-bottom: 20px;
+}
+
+.menu-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.menu-buttons button {
+  background: #333;
+  border: none;
+  border-radius: 10px;
+  color: #eee;
+  font-size: 16px;
+  padding: 14px 24px;
+  cursor: pointer;
+  transition: background 0.15s;
+  text-align: left;
+}
+
+.menu-buttons button:hover {
+  background: #444;
+}
+
+.menu-buttons button.active {
+  background: #4a7fc1;
+  color: #fff;
+}
+
+.menu-section-title {
+  color: #888;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin: 16px 0 8px;
+}
+
+/* Sides layout: 1 top, 2 middle, 1 bottom — middle row 2× height for equal area */
+.grid.layout-sides {
+  grid-template-rows: 1fr 2fr 1fr;
+}
+
+.grid.layout-sides .cell,
+.grid.layout-sides .player-panel {
+  height: 100%;
+}
+
+.grid.layout-sides .cell:nth-child(1),
+.grid.layout-sides .cell:nth-child(4) {
+  grid-column: 1 / -1;
+}
+
 /* Mobile: panels rotated 90° so players sit on the sides */
 @media (max-width: 600px) {
   .cell {
@@ -373,7 +428,7 @@ html, body, #root {
     overflow: hidden;
   }
 
-  .cell:nth-child(odd) .player-panel {
+  .grid.layout-standard .cell:nth-child(odd) .player-panel {
     position: absolute;
     width: 50vh;
     height: 50vw;
@@ -382,12 +437,30 @@ html, body, #root {
     transform: translate(-50%, -50%) rotate(90deg) !important;
   }
 
-  .cell:nth-child(even) .player-panel {
+  .grid.layout-standard .cell:nth-child(even) .player-panel {
     position: absolute;
     width: 50vh;
     height: 50vw;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%) rotate(-90deg) !important;
+  }
+
+  /* Sides layout: fix middle panels on mobile */
+  .grid.layout-sides .cell:nth-child(2) .player-panel,
+  .grid.layout-sides .cell:nth-child(3) .player-panel {
+    position: absolute;
+    width: 50vh;
+    height: 50vw;
+    top: 50%;
+    left: 50%;
+  }
+
+  .grid.layout-sides .cell:nth-child(2) .player-panel {
+    transform: translate(-50%, -50%) rotate(-90deg) !important;
+  }
+
+  .grid.layout-sides .cell:nth-child(3) .player-panel {
+    transform: translate(-50%, -50%) rotate(90deg) !important;
   }
 }
