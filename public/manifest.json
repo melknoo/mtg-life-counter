@@ -1,0 +1,10 @@
+{
+  "name": "MTG Life Counter",
+  "short_name": "MTG Counter",
+  "display": "standalone",
+  "orientation": "portrait",
+  "start_url": "/mtg-life-counter/",
+  "background_color": "#111",
+  "theme_color": "#111",
+  "icons": []
+}
