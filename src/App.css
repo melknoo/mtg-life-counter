@@ -365,3 +365,29 @@ html, body, #root {
 .cmddmg-val.lethal {
   color: #ff4444;
 }
+
+/* Mobile: panels rotated 90° so players sit on the sides */
+@media (max-width: 600px) {
+  .cell {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .cell:nth-child(odd) .player-panel {
+    position: absolute;
+    width: 50vh;
+    height: 50vw;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(90deg) !important;
+  }
+
+  .cell:nth-child(even) .player-panel {
+    position: absolute;
+    width: 50vh;
+    height: 50vw;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(-90deg) !important;
+  }
+}

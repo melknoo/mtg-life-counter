@@ -82,14 +82,15 @@ export default function App() {
     <div className="app">
       <div className="grid">
         {players.map((player, idx) => (
-          <PlayerPanel
-            key={player.id}
-            player={player}
-            rotation={rotations[idx]}
-            onAdjust={(delta) => adjustLife(player.id, delta)}
-            onOpenEdit={(mode) => openEdit(player.id, mode)}
-            cmdDmgTotal={Object.values(cmdDmg[player.id]).reduce((a, b) => a + b, 0)}
-          />
+          <div key={player.id} className="cell">
+            <PlayerPanel
+              player={player}
+              rotation={rotations[idx]}
+              onAdjust={(delta) => adjustLife(player.id, delta)}
+              onOpenEdit={(mode) => openEdit(player.id, mode)}
+              cmdDmgTotal={Object.values(cmdDmg[player.id]).reduce((a, b) => a + b, 0)}
+            />
+          </div>
         ))}
         <button className="center-btn" onClick={resetAll} title="Alles zurücksetzen">↺</button>
       </div>
