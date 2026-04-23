@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Jersey+10&family=VT323&display=swap');
+
 * {
   box-sizing: border-box;
   margin: 0;
@@ -8,12 +10,17 @@ html, body, #root {
   width: 100%;
   height: 100%;
   overflow: hidden;
+  background: #000;
+  font-family: 'Jersey 10', 'VT323', 'Courier New', monospace;
+  -webkit-font-smoothing: none;
+  font-smooth: never;
+  image-rendering: pixelated;
 }
 
 .app {
   width: 100vw;
   height: 100vh;
-  background: #111;
+  background: #000;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -26,8 +33,9 @@ html, body, #root {
   display: grid;
   grid-template-columns: 1fr 1fr;
   grid-template-rows: 1fr 1fr;
-  gap: 4px;
-  background: #111;
+  gap: 6px;
+  background: #000;
+  padding: 6px;
 }
 
 /* Player panels */
@@ -39,6 +47,10 @@ html, body, #root {
   overflow: hidden;
   cursor: default;
   user-select: none;
+  box-shadow:
+    inset 0 0 0 3px #000,
+    inset 6px 6px 0 3px rgba(255,255,255,0.4),
+    inset -6px -6px 0 3px rgba(0,0,0,0.35);
 }
 
 .panel-center {
@@ -48,22 +60,23 @@ html, body, #root {
   align-items: center;
   justify-content: center;
   gap: 6px;
-  padding: 0 43%;
+  padding: 0 38%;
 }
 
 .player-name {
   background: none;
   border: none;
-  font-size: clamp(12px, 2.5vw, 18px);
-  font-weight: 600;
-  color: rgba(0,0,0,0.7);
+  font-family: 'Jersey 10', 'VT323', 'Courier New', monospace;
+  font-weight: 400;
+  font-size: 20px;
+  color: rgba(0,0,0,0.75);
+  text-shadow: 2px 2px 0 rgba(255,255,255,0.4);
   cursor: pointer;
   text-align: center;
-  padding: 2px 8px;
-  border-radius: 4px;
-  transition: background 0.15s;
-  letter-spacing: 0.05em;
+  padding: 4px 10px;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
+  transition: background 0.15s;
 }
 
 .player-name:hover {
@@ -71,11 +84,16 @@ html, body, #root {
 }
 
 .life-total {
-  font-size: clamp(48px, 12vw, 100px);
-  font-weight: 900;
-  color: rgba(0,0,0,0.85);
+  font-family: 'Jersey 10', 'VT323', 'Courier New', monospace;
+  font-size: clamp(80px, 18vw, 140px);
+  font-weight: 400;
+  color: rgba(0,0,0,0.9);
+  text-shadow:
+    4px 4px 0 rgba(255,255,255,0.85),
+    4px 4px 0 rgba(0,0,0,0.2);
   line-height: 1;
-  letter-spacing: -0.03em;
+  letter-spacing: 0;
+  font-variant-numeric: tabular-nums;
 }
 
 /* +/- Buttons */
@@ -85,28 +103,29 @@ html, body, #root {
   top: 0;
   bottom: 0;
   width: 35%;
-  background: rgba(0,0,0,0.12);
+  background: transparent;
   border: none;
-  font-size: 36px;
-  font-weight: 300;
-  color: rgba(0,0,0,0.6);
+  font-family: 'Jersey 10', 'VT323', 'Courier New', monospace;
+  font-size: 100px;
+  font-weight: 400;
+  color: rgba(0,0,0,0.7);
+  text-shadow: 4px 4px 0 rgba(255,255,255,0.4);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background 0.1s, color 0.1s;
+  transition: background 0.1s;
   z-index: 1;
 }
 
 .btn-minus:hover,
 .btn-plus:hover {
-  background: rgba(0,0,0,0.25);
-  color: rgba(0,0,0,0.9);
+  background: rgba(0,0,0,0.12);
 }
 
 .btn-minus:active,
 .btn-plus:active {
-  background: rgba(0,0,0,0.35);
+  background: rgba(0,0,0,0.22);
 }
 
 .btn-minus { left: 0; }
@@ -120,64 +139,87 @@ html, body, #root {
 }
 
 .action-btn {
-  background: rgba(0,0,0,0.15);
+  background: rgba(0,0,0,0.18);
   border: none;
-  border-radius: 6px;
-  font-size: 18px;
-  padding: 4px 8px;
+  padding: 6px 8px;
   cursor: pointer;
-  color: rgba(0,0,0,0.7);
+  color: rgba(0,0,0,0.75);
   transition: background 0.15s;
   position: relative;
   display: flex;
   align-items: center;
-  gap: 3px;
+  gap: 4px;
+  box-shadow:
+    inset 0 0 0 2px #000,
+    inset 2px 2px 0 2px rgba(255,255,255,0.35),
+    inset -2px -2px 0 2px rgba(0,0,0,0.4);
+  font-family: 'Jersey 10', 'VT323', 'Courier New', monospace;
+  font-size: 16px;
 }
 
 .action-btn:hover {
   background: rgba(0,0,0,0.28);
 }
 
-.cmd-badge {
-  font-size: 11px;
-  font-weight: 700;
-  background: rgba(0,0,0,0.5);
-  color: #fff;
-  border-radius: 10px;
-  padding: 1px 5px;
+.action-btn svg {
+  image-rendering: pixelated;
+  shape-rendering: crispEdges;
+  display: block;
 }
 
-/* Center reset button */
+.cmd-badge {
+  font-family: 'Jersey 10', 'VT323', 'Courier New', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  background: #000;
+  color: #fff;
+  padding: 1px 5px;
+  letter-spacing: 0.04em;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.25);
+}
+
+/* Center menu button — honey tile with pixel crown */
 .center-btn {
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  background: #111;
-  border: 3px solid #333;
-  color: #888;
-  font-size: 22px;
+  width: 64px;
+  height: 64px;
+  background: #F2D49B;
+  border: none;
+  color: #000;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 10;
-  transition: background 0.15s, color 0.15s;
+  box-shadow:
+    inset 0 0 0 3px #000,
+    inset 4px 4px 0 3px rgba(255,255,255,0.5),
+    inset -4px -4px 0 3px rgba(0,0,0,0.3),
+    0 0 0 3px #000,
+    4px 4px 0 3px #000,
+    8px 8px 0 3px rgba(0,0,0,0.6);
+  transition: transform 0.15s;
 }
 
 .center-btn:hover {
-  background: #222;
-  color: #ccc;
+  transform: translate(-50%, -50%) scale(1.05);
 }
 
-/* Modal */
+.center-btn svg {
+  image-rendering: pixelated;
+  shape-rendering: crispEdges;
+  display: block;
+}
+
+/* Modal — scanline scrim + pixel card */
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.7);
+  background:
+    repeating-linear-gradient(0deg, rgba(0,0,0,0.75) 0 2px, rgba(0,0,0,0.55) 2px 4px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -186,35 +228,85 @@ html, body, #root {
 
 .modal-box {
   background: #1a1a1a;
-  border-radius: 16px;
-  padding: 28px 24px;
-  min-width: 280px;
+  padding: 0;
+  min-width: 300px;
   max-width: 90vw;
-  box-shadow: 0 8px 40px rgba(0,0,0,0.6);
+  box-shadow:
+    inset 0 0 0 3px #000,
+    inset 3px 3px 0 3px rgba(255,255,255,0.1),
+    inset -3px -3px 0 3px rgba(0,0,0,0.55),
+    0 0 0 3px #000,
+    6px 6px 0 3px #000,
+    12px 12px 0 3px rgba(0,0,0,0.7),
+    18px 18px 0 3px rgba(0,0,0,0.45);
+}
+
+.modal-titlebar {
+  background: #A8C4E8;
+  padding: 8px 12px;
+  font-family: 'Jersey 10', 'VT323', 'Courier New', monospace;
+  font-weight: 700;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: rgba(0,0,0,0.8);
+  text-shadow: 1px 1px 0 rgba(255,255,255,0.4);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: inset 0 -3px 0 #000;
+}
+
+.modal-close {
+  width: 20px;
+  height: 20px;
+  background: #E88A8A;
+  color: #000;
+  font-family: 'Jersey 10', 'VT323', 'Courier New', monospace;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: inset 0 0 0 2px #000;
+  user-select: none;
+}
+
+.modal-body {
+  padding: 18px;
 }
 
 .modal-content h3 {
-  color: #eee;
-  font-size: 18px;
-  margin-bottom: 16px;
-  text-align: center;
+  display: none;
 }
 
 .name-input {
   width: 100%;
-  background: #2a2a2a;
-  border: 2px solid #444;
-  border-radius: 8px;
+  background: #222;
+  border: none;
   color: #eee;
-  font-size: 20px;
-  padding: 10px 14px;
+  font-family: 'Jersey 10', 'VT323', 'Courier New', monospace;
+  font-size: 18px;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  padding: 12px 14px;
   text-align: center;
   outline: none;
   margin-bottom: 16px;
+  text-shadow: 1px 1px 0 #000;
+  box-shadow:
+    inset 0 0 0 3px #000,
+    inset 3px 3px 0 3px #A8C4E8,
+    inset -3px -3px 0 3px rgba(0,0,0,0.55),
+    0 0 0 3px #000;
 }
 
 .name-input:focus {
-  border-color: #666;
+  box-shadow:
+    inset 0 0 0 3px #000,
+    inset 3px 3px 0 3px #F2D49B,
+    inset -3px -3px 0 3px rgba(0,0,0,0.55),
+    0 0 0 3px #000;
 }
 
 .modal-buttons {
@@ -225,23 +317,30 @@ html, body, #root {
 }
 
 .modal-buttons button {
-  background: #333;
+  background: #C9C1B8;
   border: none;
-  border-radius: 8px;
-  color: #eee;
-  font-size: 15px;
-  padding: 10px 22px;
+  color: rgba(0,0,0,0.75);
+  font-family: 'Jersey 10', 'VT323', 'Courier New', monospace;
+  font-size: 13px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  text-shadow: 1px 1px 0 rgba(255,255,255,0.3);
+  padding: 10px 18px;
   cursor: pointer;
-  transition: background 0.15s;
+  transition: filter 0.15s;
+  box-shadow:
+    inset 0 0 0 3px #000,
+    inset 3px 3px 0 3px rgba(255,255,255,0.35),
+    inset -3px -3px 0 3px rgba(0,0,0,0.4),
+    0 0 0 3px #000;
 }
 
 .modal-buttons button:first-child {
-  background: #4a7fc1;
-  color: #fff;
+  background: #A8C4E8;
 }
 
 .modal-buttons button:hover {
-  filter: brightness(1.2);
+  filter: brightness(1.1);
 }
 
 /* Color picker */
@@ -255,19 +354,26 @@ html, body, #root {
 .color-swatch {
   width: 52px;
   height: 52px;
-  border-radius: 10px;
   cursor: pointer;
-  border: 3px solid transparent;
-  transition: transform 0.1s, border-color 0.1s;
+  box-shadow:
+    inset 0 0 0 2px #000,
+    inset 2px 2px 0 2px rgba(255,255,255,0.35),
+    inset -2px -2px 0 2px rgba(0,0,0,0.4);
+  transition: transform 0.1s;
 }
 
 .color-swatch:hover {
-  transform: scale(1.08);
+  transform: translate(-2px, -2px);
 }
 
 .color-swatch.selected {
-  border-color: #fff;
-  transform: scale(1.05);
+  box-shadow:
+    inset 0 0 0 2px #000,
+    inset 2px 2px 0 2px #fff,
+    inset -2px -2px 0 2px rgba(0,0,0,0.5),
+    0 0 0 3px #F2D49B,
+    0 0 0 5px #000;
+  transform: translate(-2px, -2px);
 }
 
 .custom-color {
@@ -276,139 +382,198 @@ html, body, #root {
   gap: 10px;
   justify-content: center;
   color: #aaa;
-  font-size: 14px;
+  font-family: 'Jersey 10', 'VT323', 'Courier New', monospace;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
 }
 
 .custom-color input[type="color"] {
   width: 48px;
   height: 36px;
   border: none;
-  border-radius: 6px;
-  background: none;
+  background: #000;
   cursor: pointer;
-  padding: 0;
+  padding: 2px;
+  box-shadow:
+    inset 0 0 0 2px #000,
+    inset 2px 2px 0 2px rgba(255,255,255,0.1),
+    inset -2px -2px 0 2px rgba(0,0,0,0.55);
 }
 
 /* Commander Damage panel */
 .cmddmg-panel h3 {
-  color: #eee;
-  font-size: 18px;
-  margin-bottom: 6px;
-  text-align: center;
+  display: none;
 }
 
 .cmddmg-victim {
   color: #aaa;
-  font-size: 13px;
+  font-family: 'Jersey 10', 'VT323', 'Courier New', monospace;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
   text-align: center;
-  margin-bottom: 16px;
+  margin-bottom: 14px;
 }
 
 .cmddmg-victim strong {
-  color: #ddd;
+  color: #eee;
 }
 
 .cmddmg-row {
   display: flex;
-  align-items: center;
+  align-items: stretch;
   justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 12px;
+  gap: 8px;
+  margin-bottom: 10px;
 }
 
 .cmddmg-attacker {
-  border-radius: 8px;
-  padding: 6px 12px;
-  font-size: 13px;
+  padding: 10px 12px;
+  font-family: 'Jersey 10', 'VT323', 'Courier New', monospace;
+  font-size: 12px;
   font-weight: 700;
-  color: rgba(0,0,0,0.8);
+  color: rgba(0,0,0,0.75);
+  text-shadow: 1px 1px 0 rgba(255,255,255,0.3);
   flex: 1;
-  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.14em;
+  box-shadow:
+    inset 0 0 0 3px #000,
+    inset 3px 3px 0 3px rgba(255,255,255,0.35),
+    inset -3px -3px 0 3px rgba(0,0,0,0.4),
+    0 0 0 3px #000;
 }
 
 .cmddmg-controls {
   display: flex;
-  align-items: center;
-  gap: 8px;
+  align-items: stretch;
+  gap: 6px;
 }
 
 .cmddmg-controls button {
-  background: #2a2a2a;
+  background: #1a1a1a;
   border: none;
-  border-radius: 6px;
-  color: #ccc;
-  font-size: 22px;
-  font-weight: 300;
-  width: 40px;
+  color: #eee;
+  font-family: 'Jersey 10', 'VT323', 'Courier New', monospace;
+  font-size: 20px;
+  width: 38px;
   height: 40px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background 0.1s;
+  box-shadow:
+    inset 0 0 0 2px #000,
+    inset 2px 2px 0 2px rgba(255,255,255,0.1),
+    inset -2px -2px 0 2px rgba(0,0,0,0.55),
+    0 0 0 2px #000;
+  text-shadow: 1px 1px 0 #000;
 }
 
 .cmddmg-controls button:hover {
-  background: #3a3a3a;
+  filter: brightness(1.4);
 }
 
 .cmddmg-val {
-  font-size: 24px;
-  font-weight: 800;
+  min-width: 52px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #000;
+  font-family: 'Jersey 10', 'VT323', 'Courier New', monospace;
+  font-size: 20px;
   color: #eee;
-  min-width: 40px;
-  text-align: center;
+  letter-spacing: 0.04em;
+  font-variant-numeric: tabular-nums;
+  box-shadow: inset 0 0 0 2px #333;
 }
 
 .cmddmg-val.lethal {
-  color: #ff4444;
+  background: #F2A6A6;
+  color: #000;
+  text-shadow: 1px 1px 0 rgba(255,255,255,0.4);
+  animation: pulse 1s steps(2) infinite;
+}
+
+@keyframes pulse {
+  50% { background: #E88A8A; }
 }
 
 /* Menu */
 .menu-panel h3 {
-  margin-bottom: 20px;
+  display: none;
 }
 
 .menu-buttons {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
 }
 
 .menu-buttons button {
-  background: #333;
+  background: #C9C1B8;
   border: none;
-  border-radius: 10px;
-  color: #eee;
-  font-size: 16px;
-  padding: 14px 24px;
+  color: rgba(0,0,0,0.75);
+  font-family: 'Jersey 10', 'VT323', 'Courier New', monospace;
+  font-size: 13px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  text-shadow: 1px 1px 0 rgba(255,255,255,0.3);
+  padding: 12px 14px;
   cursor: pointer;
-  transition: background 0.15s;
+  transition: filter 0.15s;
   text-align: left;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow:
+    inset 0 0 0 3px #000,
+    inset 3px 3px 0 3px rgba(255,255,255,0.35),
+    inset -3px -3px 0 3px rgba(0,0,0,0.4),
+    0 0 0 3px #000;
 }
 
 .menu-buttons button:hover {
-  background: #444;
+  filter: brightness(1.1);
 }
 
 .menu-buttons button.active {
-  background: #4a7fc1;
-  color: #fff;
+  background: #A8C4E8;
+}
+
+.menu-buttons button svg {
+  image-rendering: pixelated;
+  shape-rendering: crispEdges;
+  display: block;
+  flex-shrink: 0;
 }
 
 .menu-section-title {
   color: #888;
-  font-size: 12px;
+  font-family: 'Jersey 10', 'VT323', 'Courier New', monospace;
+  font-size: 11px;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.2em;
   margin: 16px 0 8px;
+}
+
+.menu-section-title::before {
+  content: "> ";
+  color: #555;
 }
 
 /* Sides layout: 1 top, 2 middle, 1 bottom — middle row 2× height for equal area */
 .grid.layout-sides {
   grid-template-rows: 1fr 2fr 1fr;
+}
+
+.grid.layout-sides .center-btn {
+  top: calc(50% - 150px);
 }
 
 .cell,
@@ -469,7 +634,6 @@ html, body, #root {
     transform: translate(-50%, -50%) rotate(-90deg) !important;
   }
 
-  /* Sides layout: fix middle panels on mobile */
   .grid.layout-sides .cell:nth-child(2) .player-panel,
   .grid.layout-sides .cell:nth-child(3) .player-panel {
     position: absolute;
