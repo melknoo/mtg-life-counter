@@ -134,8 +134,10 @@ html, body, #root {
 /* Panel action buttons */
 .panel-actions {
   display: flex;
-  gap: 8px;
+  flex-wrap: wrap;
+  gap: 6px;
   align-items: center;
+  justify-content: center;
 }
 
 .action-btn {
@@ -191,8 +193,10 @@ html, body, #root {
   color: #000;
   cursor: pointer;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: 2px;
   z-index: 10;
   box-shadow:
     inset 0 0 0 3px #000,
@@ -204,6 +208,10 @@ html, body, #root {
   transition: transform 0.15s;
 }
 
+.center-btn.night {
+  background: #2a2a4a;
+}
+
 .center-btn:hover {
   transform: translate(-50%, -50%) scale(1.05);
 }
@@ -212,6 +220,12 @@ html, body, #root {
   image-rendering: pixelated;
   shape-rendering: crispEdges;
   display: block;
+}
+
+.day-icon {
+  font-size: 13px;
+  line-height: 1;
+  font-style: normal;
 }
 
 /* Modal — scanline scrim + pixel card */
@@ -650,4 +664,342 @@ html, body, #root {
   .grid.layout-sides .cell:nth-child(3) .player-panel {
     transform: translate(-50%, -50%) rotate(90deg) !important;
   }
+}
+
+/* ===== Commander name in player panel ===== */
+.commander-name {
+  font-family: 'Jersey 10', 'VT323', 'Courier New', monospace;
+  font-size: 12px;
+  color: rgba(0,0,0,0.5);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+/* ===== Status badges in player panel ===== */
+.panel-status {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.counter-badge {
+  font-family: 'Jersey 10', 'VT323', 'Courier New', monospace;
+  font-size: 12px;
+  background: rgba(0,0,0,0.18);
+  color: rgba(0,0,0,0.8);
+  padding: 2px 5px;
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,0.25);
+  text-shadow: 1px 1px 0 rgba(255,255,255,0.3);
+}
+
+.counter-badge.lethal {
+  background: #E88A8A;
+  animation: pulse 1s steps(2) infinite;
+}
+
+.status-badge {
+  font-family: 'Jersey 10', 'VT323', 'Courier New', monospace;
+  font-size: 13px;
+  color: rgba(0,0,0,0.75);
+  text-shadow: 1px 1px 0 rgba(255,255,255,0.4);
+  line-height: 1;
+}
+
+/* ===== Counters modal ===== */
+.counters-panel .counter-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.counter-label {
+  font-family: 'Jersey 10', 'VT323', 'Courier New', monospace;
+  font-size: 12px;
+  color: #aaa;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  flex: 1;
+}
+
+.toggle-btn {
+  background: #1a1a1a;
+  border: none;
+  color: #eee;
+  font-family: 'Jersey 10', 'VT323', 'Courier New', monospace;
+  font-size: 13px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 8px 14px;
+  cursor: pointer;
+  min-width: 64px;
+  text-align: center;
+  box-shadow:
+    inset 0 0 0 2px #000,
+    inset 2px 2px 0 2px rgba(255,255,255,0.1),
+    inset -2px -2px 0 2px rgba(0,0,0,0.55),
+    0 0 0 2px #000;
+}
+
+.toggle-btn.active {
+  background: #A8C4E8;
+  color: rgba(0,0,0,0.85);
+  text-shadow: 1px 1px 0 rgba(255,255,255,0.3);
+}
+
+.toggle-btn:hover {
+  filter: brightness(1.2);
+}
+
+/* ===== Reset confirmation ===== */
+.confirm-text {
+  color: #aaa;
+  font-family: 'Jersey 10', 'VT323', 'Courier New', monospace;
+  font-size: 12px;
+  text-align: center;
+  margin-bottom: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+/* ===== Home screen ===== */
+.home-screen {
+  width: 100vw;
+  height: 100vh;
+  background: #111;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  padding: 24px 20px;
+  overflow-y: auto;
+  box-sizing: border-box;
+  background-image: repeating-linear-gradient(
+    0deg,
+    rgba(0,0,0,0.3) 0 1px,
+    transparent 1px 4px
+  );
+}
+
+.home-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  filter: drop-shadow(4px 4px 0 rgba(0,0,0,0.8));
+}
+
+.home-title {
+  font-family: 'Jersey 10', 'VT323', 'Courier New', monospace;
+  font-size: 26px;
+  font-weight: 400;
+  color: #F2D49B;
+  text-transform: uppercase;
+  letter-spacing: 0.22em;
+  text-shadow:
+    3px 3px 0 #000,
+    5px 5px 0 rgba(0,0,0,0.5);
+  margin: 0;
+  text-align: center;
+}
+
+.home-section {
+  width: 100%;
+  max-width: 420px;
+}
+
+.home-section-label {
+  color: #666;
+  font-family: 'Jersey 10', 'VT323', 'Courier New', monospace;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  margin-bottom: 8px;
+}
+
+.home-section-label::before {
+  content: "> ";
+  color: #444;
+}
+
+.home-layout-btns {
+  display: flex;
+  gap: 10px;
+}
+
+.home-layout-btn {
+  flex: 1;
+  background: #2a2a2a;
+  border: none;
+  color: rgba(255,255,255,0.6);
+  font-family: 'Jersey 10', 'VT323', 'Courier New', monospace;
+  font-size: 13px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 12px 10px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: center;
+  box-shadow:
+    inset 0 0 0 3px #000,
+    inset 3px 3px 0 3px rgba(255,255,255,0.07),
+    inset -3px -3px 0 3px rgba(0,0,0,0.4),
+    0 0 0 3px #000;
+  transition: filter 0.15s;
+}
+
+.home-layout-btn svg {
+  image-rendering: pixelated;
+  shape-rendering: crispEdges;
+  display: block;
+  flex-shrink: 0;
+  opacity: 0.6;
+}
+
+.home-layout-btn.active {
+  background: #A8C4E8;
+  color: rgba(0,0,0,0.8);
+}
+
+.home-layout-btn.active svg {
+  opacity: 1;
+}
+
+.home-layout-btn:hover {
+  filter: brightness(1.15);
+}
+
+.home-new-game {
+  width: 100%;
+  max-width: 420px;
+  background: #F2D49B;
+  border: none;
+  color: rgba(0,0,0,0.85);
+  font-family: 'Jersey 10', 'VT323', 'Courier New', monospace;
+  font-size: 20px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  padding: 20px 24px;
+  cursor: pointer;
+  box-shadow:
+    inset 0 0 0 3px #000,
+    inset 4px 4px 0 3px rgba(255,255,255,0.5),
+    inset -4px -4px 0 3px rgba(0,0,0,0.3),
+    0 0 0 3px #000,
+    4px 4px 0 3px #000,
+    8px 8px 0 3px rgba(0,0,0,0.5);
+  text-shadow: 2px 2px 0 rgba(255,255,255,0.3);
+  transition: filter 0.15s;
+}
+
+.home-new-game:hover {
+  filter: brightness(1.05);
+}
+
+.home-rounds-section {
+  max-height: 40vh;
+  overflow-y: auto;
+}
+
+.home-rounds-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.home-round-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  background: #1e1e1e;
+  padding: 10px 12px;
+  box-shadow:
+    inset 0 0 0 2px #000,
+    inset 2px 2px 0 2px rgba(255,255,255,0.04),
+    0 0 0 2px #000;
+}
+
+.home-round-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.home-round-name {
+  font-family: 'Jersey 10', 'VT323', 'Courier New', monospace;
+  font-size: 14px;
+  color: #F2D49B;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.home-round-players {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 3px;
+}
+
+.home-player-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  flex-shrink: 0;
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,0.4);
+}
+
+.home-round-names-text {
+  font-family: 'Jersey 10', 'VT323', 'Courier New', monospace;
+  font-size: 11px;
+  color: #666;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.home-round-actions {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.home-round-actions button {
+  background: #2a2a2a;
+  border: none;
+  color: rgba(255,255,255,0.7);
+  font-family: 'Jersey 10', 'VT323', 'Courier New', monospace;
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 8px 12px;
+  cursor: pointer;
+  box-shadow:
+    inset 0 0 0 2px #000,
+    inset 2px 2px 0 2px rgba(255,255,255,0.08),
+    inset -2px -2px 0 2px rgba(0,0,0,0.4),
+    0 0 0 2px #000;
+  transition: filter 0.15s;
+}
+
+.home-round-actions button:hover {
+  filter: brightness(1.3);
+}
+
+.home-delete-btn {
+  background: #3a1a1a !important;
+  color: #E88A8A !important;
+  padding: 8px 10px !important;
 }
