@@ -72,21 +72,30 @@ function IconSides({ size = 14, color = 'currentColor' }) {
   )
 }
 
+// Sword with blade, crossguard, handle and pommel — clearly distinct from a die
 function IconSword({ size = 16, color = 'currentColor' }) {
   return (
     <svg width={size * 0.75} height={size} viewBox="0 0 6 8" fill={color} style={PX}>
-      <rect x="2" y="0" width="2" height="4"/>
+      <rect x="2" y="0" width="2" height="3"/>
       <rect x="0" y="3" width="6" height="1"/>
-      <rect x="2" y="4" width="2" height="4"/>
+      <rect x="2" y="4" width="2" height="2"/>
+      <rect x="1" y="6" width="4" height="2"/>
     </svg>
   )
 }
 
-function IconPlus({ size = 16, color = 'currentColor' }) {
+// Die (d6) icon — clearly means "counters/tracking"
+function IconDie({ size = 16, color = 'currentColor' }) {
   return (
     <svg width={size} height={size} viewBox="0 0 8 8" fill={color} style={PX}>
-      <rect x="3" y="0" width="2" height="8"/>
-      <rect x="0" y="3" width="8" height="2"/>
+      <rect x="0" y="0" width="8" height="1"/>
+      <rect x="0" y="7" width="8" height="1"/>
+      <rect x="0" y="1" width="1" height="6"/>
+      <rect x="7" y="1" width="1" height="6"/>
+      <rect x="2" y="2" width="1" height="1"/>
+      <rect x="5" y="2" width="1" height="1"/>
+      <rect x="2" y="5" width="1" height="1"/>
+      <rect x="5" y="5" width="1" height="1"/>
     </svg>
   )
 }
@@ -104,6 +113,19 @@ function IconHome({ size = 14, color = 'currentColor' }) {
   )
 }
 
+function ToggleSwitch({ active, onChange }) {
+  return (
+    <div
+      className={`toggle-switch${active ? ' on' : ''}`}
+      onClick={onChange}
+      role="checkbox"
+      aria-checked={active}
+    >
+      <div className="toggle-knob"/>
+    </div>
+  )
+}
+
 const PLAYER_COLORS = ['#F2D49B', '#E88A8A', '#C8B4E0', '#A8C4E8']
 
 const PRESET_COLORS = [
@@ -115,10 +137,10 @@ const PRESET_COLORS = [
 const STARTING_LIFE = 40
 
 const makeInitialPlayers = () => [
-  { id: 0, name: 'Spieler 1', life: STARTING_LIFE, color: PLAYER_COLORS[0], commander: '', poison: 0, experience: 0, isMonarch: false, hasInitiative: false, hasCitysBlessing: false },
-  { id: 1, name: 'Spieler 2', life: STARTING_LIFE, color: PLAYER_COLORS[1], commander: '', poison: 0, experience: 0, isMonarch: false, hasInitiative: false, hasCitysBlessing: false },
-  { id: 2, name: 'Spieler 3', life: STARTING_LIFE, color: PLAYER_COLORS[2], commander: '', poison: 0, experience: 0, isMonarch: false, hasInitiative: false, hasCitysBlessing: false },
-  { id: 3, name: 'Spieler 4', life: STARTING_LIFE, color: PLAYER_COLORS[3], commander: '', poison: 0, experience: 0, isMonarch: false, hasInitiative: false, hasCitysBlessing: false },
+  { id: 0, name: 'Spieler 1', life: STARTING_LIFE, color: PLAYER_COLORS[0], commander: '', poison: 0, experience: 0, isMonarch: false, hasInitiative: false, hasCitysBlessing: false, customTrackers: [] },
+  { id: 1, name: 'Spieler 2', life: STARTING_LIFE, color: PLAYER_COLORS[1], commander: '', poison: 0, experience: 0, isMonarch: false, hasInitiative: false, hasCitysBlessing: false, customTrackers: [] },
+  { id: 2, name: 'Spieler 3', life: STARTING_LIFE, color: PLAYER_COLORS[2], commander: '', poison: 0, experience: 0, isMonarch: false, hasInitiative: false, hasCitysBlessing: false, customTrackers: [] },
+  { id: 3, name: 'Spieler 4', life: STARTING_LIFE, color: PLAYER_COLORS[3], commander: '', poison: 0, experience: 0, isMonarch: false, hasInitiative: false, hasCitysBlessing: false, customTrackers: [] },
 ]
 
 const initCmdDmg = () => {
@@ -185,6 +207,43 @@ export default function App() {
     setPlayers(prev => prev.map(p => p.id === id ? { ...p, hasCitysBlessing: !p.hasCitysBlessing } : p))
   }, [])
 
+  const adjustCustomCounter = useCallback((playerId, trackerId, delta) => {
+    setPlayers(prev => prev.map(p => p.id !== playerId ? p : {
+      ...p,
+      customTrackers: p.customTrackers.map(t =>
+        t.id === trackerId ? { ...t, value: Math.max(0, t.value + delta) } : t
+      )
+    }))
+  }, [])
+
+  const toggleCustomSwitch = useCallback((playerId, trackerId) => {
+    setPlayers(prev => prev.map(p => p.id !== playerId ? p : {
+      ...p,
+      customTrackers: p.customTrackers.map(t =>
+        t.id === trackerId ? { ...t, value: !t.value } : t
+      )
+    }))
+  }, [])
+
+  const addCustomTracker = useCallback((playerId, type, label) => {
+    setPlayers(prev => prev.map(p => p.id !== playerId ? p : {
+      ...p,
+      customTrackers: [...p.customTrackers, {
+        id: Date.now(),
+        label: label.trim(),
+        type,
+        value: type === 'toggle' ? false : 0
+      }]
+    }))
+  }, [])
+
+  const removeCustomTracker = useCallback((playerId, trackerId) => {
+    setPlayers(prev => prev.map(p => p.id !== playerId ? p : {
+      ...p,
+      customTrackers: p.customTrackers.filter(t => t.id !== trackerId)
+    }))
+  }, [])
+
   const setPlayerColor = useCallback((id, color) => {
     setPlayers(prev => prev.map(p => p.id === id ? { ...p, color } : p))
   }, [])
@@ -215,6 +274,10 @@ export default function App() {
       color: p.color,
       name: p.name,
       commander: p.commander,
+      customTrackers: p.customTrackers.map(t => ({
+        ...t,
+        value: t.type === 'toggle' ? false : 0
+      }))
     })))
     setCmdDmg(initCmdDmg())
     setIsDay(true)
@@ -235,6 +298,10 @@ export default function App() {
       ...makeInitialPlayers()[i],
       name: round.players[i].name,
       color: round.players[i].color,
+      customTrackers: prev[i].customTrackers.map(t => ({
+        ...t,
+        value: t.type === 'toggle' ? false : 0
+      }))
     })))
     setCmdDmg(initCmdDmg())
     setIsDay(true)
@@ -353,6 +420,10 @@ export default function App() {
             onSetMonarch={() => setMonarch(editingPlayer.id)}
             onSetInitiative={() => setInitiative(editingPlayer.id)}
             onToggleCitysBlessing={() => toggleCitysBlessing(editingPlayer.id)}
+            onAdjustCustom={(trackerId, delta) => adjustCustomCounter(editingPlayer.id, trackerId, delta)}
+            onToggleCustom={(trackerId) => toggleCustomSwitch(editingPlayer.id, trackerId)}
+            onAddCustom={(type, label) => addCustomTracker(editingPlayer.id, type, label)}
+            onRemoveCustom={(trackerId) => removeCustomTracker(editingPlayer.id, trackerId)}
             onClose={() => setEditingPlayer(null)}
           />
         </Modal>
@@ -509,7 +580,10 @@ function PlayerPanel({ player, rotation, onAdjust, onOpenEdit, cmdDmgTotal }) {
     clearInterval(holdIntervalRef.current)
   }
 
-  const hasStatus = player.poison > 0 || player.experience > 0 || player.isMonarch || player.hasInitiative || player.hasCitysBlessing
+  const hasCustomActive = player.customTrackers.some(t =>
+    t.type === 'toggle' ? t.value : t.value > 0
+  )
+  const hasStatus = player.poison > 0 || player.experience > 0 || player.isMonarch || player.hasInitiative || player.hasCitysBlessing || hasCustomActive
 
   return (
     <div
@@ -554,6 +628,15 @@ function PlayerPanel({ player, rotation, onAdjust, onOpenEdit, cmdDmgTotal }) {
             {player.isMonarch && <span className="status-badge">♛</span>}
             {player.hasInitiative && <span className="status-badge">⚔</span>}
             {player.hasCitysBlessing && <span className="status-badge">✦</span>}
+            {player.customTrackers.map(t => {
+              if (t.type === 'toggle' && t.value) {
+                return <span key={t.id} className="status-badge">{t.label.substring(0, 3).toUpperCase()}</span>
+              }
+              if (t.type === 'counter' && t.value > 0) {
+                return <span key={t.id} className="counter-badge">{t.label.substring(0, 2).toUpperCase()}{t.value}</span>
+              }
+              return null
+            })}
           </div>
         )}
         <div className="panel-actions">
@@ -565,7 +648,7 @@ function PlayerPanel({ player, rotation, onAdjust, onOpenEdit, cmdDmgTotal }) {
             {cmdDmgTotal > 0 && <span className="cmd-badge">{cmdDmgTotal}</span>}
           </button>
           <button className="action-btn" onClick={() => onOpenEdit('counters')} aria-label="Zähler">
-            <IconPlus size={14} color="rgba(0,0,0,0.75)"/>
+            <IconDie size={14} color="rgba(0,0,0,0.75)"/>
           </button>
           <button className="action-btn" onClick={() => onOpenEdit('commander')} aria-label="Commander">
             <IconSword size={14} color="rgba(0,0,0,0.75)"/>
@@ -606,7 +689,18 @@ function CmdDmgPanel({ victimId, players, cmdDmg, onAdjust, onClose }) {
   )
 }
 
-function CountersPanel({ player, onAdjustPoison, onAdjustExperience, onSetMonarch, onSetInitiative, onToggleCitysBlessing, onClose }) {
+function CountersPanel({ player, onAdjustPoison, onAdjustExperience, onSetMonarch, onSetInitiative, onToggleCitysBlessing, onAdjustCustom, onToggleCustom, onAddCustom, onRemoveCustom, onClose }) {
+  const [adding, setAdding] = useState(false)
+  const [newLabel, setNewLabel] = useState('')
+  const [newType, setNewType] = useState('counter')
+
+  const handleAdd = () => {
+    if (!newLabel.trim()) return
+    onAddCustom(newType, newLabel)
+    setNewLabel('')
+    setAdding(false)
+  }
+
   return (
     <div className="modal-content counters-panel">
       <div className="counter-row">
@@ -629,22 +723,74 @@ function CountersPanel({ player, onAdjustPoison, onAdjustExperience, onSetMonarc
       </div>
       <div className="counter-row">
         <div className="counter-label">MONARCH ♛</div>
-        <button className={`toggle-btn${player.isMonarch ? ' active' : ''}`} onClick={onSetMonarch}>
-          {player.isMonarch ? 'JA' : 'NEIN'}
-        </button>
+        <ToggleSwitch active={player.isMonarch} onChange={onSetMonarch}/>
       </div>
       <div className="counter-row">
         <div className="counter-label">INITIATIVE ⚔</div>
-        <button className={`toggle-btn${player.hasInitiative ? ' active' : ''}`} onClick={onSetInitiative}>
-          {player.hasInitiative ? 'JA' : 'NEIN'}
-        </button>
+        <ToggleSwitch active={player.hasInitiative} onChange={onSetInitiative}/>
       </div>
       <div className="counter-row">
         <div className="counter-label">CITY'S BLESSING ✦</div>
-        <button className={`toggle-btn${player.hasCitysBlessing ? ' active' : ''}`} onClick={onToggleCitysBlessing}>
-          {player.hasCitysBlessing ? 'JA' : 'NEIN'}
-        </button>
+        <ToggleSwitch active={player.hasCitysBlessing} onChange={onToggleCitysBlessing}/>
       </div>
+
+      {player.customTrackers.length > 0 && (
+        <div className="custom-trackers-section">
+          <div className="custom-divider"/>
+          {player.customTrackers.map(tracker => (
+            <div key={tracker.id} className="counter-row">
+              <div className="counter-label">{tracker.label.toUpperCase()}</div>
+              {tracker.type === 'toggle' ? (
+                <ToggleSwitch active={tracker.value} onChange={() => onToggleCustom(tracker.id)}/>
+              ) : (
+                <div className="cmddmg-controls">
+                  <button onClick={() => onAdjustCustom(tracker.id, -1)}>−</button>
+                  <span className="cmddmg-val">{String(tracker.value).padStart(2, '0')}</span>
+                  <button onClick={() => onAdjustCustom(tracker.id, 1)}>+</button>
+                </div>
+              )}
+              <button className="remove-tracker-btn" onClick={() => onRemoveCustom(tracker.id)}>×</button>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {adding ? (
+        <div className="add-tracker-form">
+          <input
+            className="name-input"
+            value={newLabel}
+            onChange={e => setNewLabel(e.target.value)}
+            onKeyDown={e => e.key === 'Enter' && handleAdd()}
+            placeholder="Name..."
+            maxLength={16}
+            autoFocus
+          />
+          <div className="tracker-type-row">
+            <button
+              className={`type-btn${newType === 'counter' ? ' active' : ''}`}
+              onClick={() => setNewType('counter')}
+            >
+              ZÄHLER
+            </button>
+            <button
+              className={`type-btn${newType === 'toggle' ? ' active' : ''}`}
+              onClick={() => setNewType('toggle')}
+            >
+              AN/AUS
+            </button>
+          </div>
+          <div className="modal-buttons">
+            <button onClick={handleAdd}>Hinzufügen</button>
+            <button onClick={() => { setAdding(false); setNewLabel('') }}>Abbrechen</button>
+          </div>
+        </div>
+      ) : (
+        <button className="add-tracker-btn" onClick={() => setAdding(true)}>
+          + EIGENER ZÄHLER
+        </button>
+      )}
+
       <div className="modal-buttons">
         <button onClick={onClose}>Fertig</button>
       </div>
