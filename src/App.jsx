@@ -313,6 +313,10 @@ export default function App() {
 
   const rotations = layout === 'sides' ? [180, -90, 90, 0] : [180, 180, 0, 0]
 
+  const editingPlayerRotation = editingPlayer
+    ? rotations[players.findIndex(p => p.id === editingPlayer.id)]
+    : 0
+
   if (currentView === 'home') {
     return (
       <div className="app">
@@ -352,6 +356,7 @@ export default function App() {
         <Modal
           title={editingPlayer.mode === 'commander' ? 'COMMANDER' : 'NAME ÄNDERN'}
           onClose={() => setEditingPlayer(null)}
+          rotation={editingPlayerRotation}
         >
           <div className="modal-content">
             <input
@@ -372,7 +377,7 @@ export default function App() {
       )}
 
       {editingPlayer && editingPlayer.mode === 'color' && (
-        <Modal title="FARBE WÄHLEN" onClose={() => setEditingPlayer(null)}>
+        <Modal title="FARBE WÄHLEN" onClose={() => setEditingPlayer(null)} rotation={editingPlayerRotation}>
           <div className="modal-content">
             <div className="color-grid">
               {PRESET_COLORS.map(color => (
@@ -400,7 +405,7 @@ export default function App() {
       )}
 
       {editingPlayer && editingPlayer.mode === 'cmddmg' && (
-        <Modal title="COMMANDER DAMAGE" onClose={() => setEditingPlayer(null)}>
+        <Modal title="COMMANDER DAMAGE" onClose={() => setEditingPlayer(null)} rotation={editingPlayerRotation}>
           <CmdDmgPanel
             victimId={editingPlayer.id}
             players={players}
@@ -412,7 +417,7 @@ export default function App() {
       )}
 
       {editingPlayer && editingPlayer.mode === 'counters' && (
-        <Modal title="ZÄHLER" onClose={() => setEditingPlayer(null)}>
+        <Modal title="ZÄHLER" onClose={() => setEditingPlayer(null)} rotation={editingPlayerRotation}>
           <CountersPanel
             player={players.find(p => p.id === editingPlayer.id)}
             onAdjustPoison={(delta) => adjustPoison(editingPlayer.id, delta)}
@@ -798,15 +803,24 @@ function CountersPanel({ player, onAdjustPoison, onAdjustExperience, onSetMonarc
   )
 }
 
-function Modal({ title, children, onClose }) {
+function Modal({ title, children, onClose, rotation = 0 }) {
+  const is90 = Math.abs(rotation) === 90
   return (
     <div className="modal-overlay" onClick={e => e.target === e.currentTarget && onClose()}>
-      <div className="modal-box">
+      <div
+        className="modal-box"
+        style={{
+          transform: `rotate(${rotation}deg)`,
+          ...(is90 && { width: 'min(82vh, 480px)', maxWidth: 'min(82vh, 480px)' })
+        }}
+      >
         <div className="modal-titlebar">
           <span>&gt; {title}</span>
           <span className="modal-close" onClick={onClose}>×</span>
         </div>
-        <div className="modal-body">{children}</div>
+        <div className="modal-body" style={is90 ? { maxHeight: '70vw' } : undefined}>
+          {children}
+        </div>
       </div>
     </div>
   )
