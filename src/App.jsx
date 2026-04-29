@@ -584,6 +584,12 @@ function HomeScreen({ layout, onSetLayout, savedRounds, onNewGame, onLoadRound, 
 function PlayerPanel({ player, rotation, onAdjust, onOpenEdit, cmdDmgTotal }) {
   const holdTimerRef = useRef(null)
   const holdIntervalRef = useRef(null)
+  const [menuOpen, setMenuOpen] = useState(false)
+
+  const handleMenuAction = (editType) => {
+    setMenuOpen(false)
+    onOpenEdit(editType)
+  }
 
   const startAdjust = (delta) => {
     onAdjust(delta)
@@ -656,22 +662,33 @@ function PlayerPanel({ player, rotation, onAdjust, onOpenEdit, cmdDmgTotal }) {
             })}
           </div>
         )}
-        <div className="panel-actions">
-          <button className="action-btn" onClick={() => onOpenEdit('color')} aria-label="Farbe">
-            <IconPalette size={14} color="rgba(0,0,0,0.75)"/>
-          </button>
-          <button className="action-btn" onClick={() => onOpenEdit('cmddmg')} aria-label="Commander Damage">
-            <IconCrown size={14} color="rgba(0,0,0,0.85)"/>
-            {cmdDmgTotal > 0 && <span className="cmd-badge">{cmdDmgTotal}</span>}
-          </button>
-          <button className="action-btn" onClick={() => onOpenEdit('counters')} aria-label="Zähler">
-            <IconDie size={14} color="rgba(0,0,0,0.75)"/>
-          </button>
-          <button className="action-btn" onClick={() => onOpenEdit('commander')} aria-label="Commander">
-            <IconSword size={14} color="rgba(0,0,0,0.75)"/>
-          </button>
-        </div>
+        <button className="player-menu-btn" onClick={() => setMenuOpen(true)} aria-label="Menü">
+          ≡
+        </button>
       </div>
+
+      {menuOpen && (
+        <div className="player-menu-overlay" onClick={() => setMenuOpen(false)}>
+          <div className="player-menu-grid" onClick={e => e.stopPropagation()}>
+            <button className="player-menu-action" onClick={() => handleMenuAction('color')}>
+              <IconPalette size={26} color="#fff"/>
+              <span>Farbe</span>
+            </button>
+            <button className="player-menu-action" onClick={() => handleMenuAction('cmddmg')}>
+              <IconCrown size={26} color="#fff"/>
+              <span>Cmd{cmdDmgTotal > 0 ? ` ${cmdDmgTotal}` : ''}</span>
+            </button>
+            <button className="player-menu-action" onClick={() => handleMenuAction('counters')}>
+              <IconDie size={26} color="#fff"/>
+              <span>Zähler</span>
+            </button>
+            <button className="player-menu-action" onClick={() => handleMenuAction('commander')}>
+              <IconSword size={26} color="#fff"/>
+              <span>Cmdr</span>
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
