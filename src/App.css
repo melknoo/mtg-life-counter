@@ -618,11 +618,11 @@ html, body, #root {
 }
 
 .grid.layout-sides .cell:nth-child(2) .player-panel {
-  transform: translate(-50%, -50%) rotate(-90deg) !important;
+  transform: translate(-50%, -50%) rotate(90deg) !important;
 }
 
 .grid.layout-sides .cell:nth-child(3) .player-panel {
-  transform: translate(-50%, -50%) rotate(90deg) !important;
+  transform: translate(-50%, -50%) rotate(-90deg) !important;
 }
 
 /* Mobile: panels rotated 90° so players sit on the sides */
@@ -660,11 +660,11 @@ html, body, #root {
   }
 
   .grid.layout-sides .cell:nth-child(2) .player-panel {
-    transform: translate(-50%, -50%) rotate(-90deg) !important;
+    transform: translate(-50%, -50%) rotate(90deg) !important;
   }
 
   .grid.layout-sides .cell:nth-child(3) .player-panel {
-    transform: translate(-50%, -50%) rotate(90deg) !important;
+    transform: translate(-50%, -50%) rotate(-90deg) !important;
   }
 }
 

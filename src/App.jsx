@@ -166,6 +166,14 @@ export default function App() {
   const [confirmingReset, setConfirmingReset] = useState(false)
   const [savingRound, setSavingRound] = useState(false)
   const [tempRoundName, setTempRoundName] = useState('')
+  const [isMobileLayout, setIsMobileLayout] = useState(() => window.matchMedia('(max-width: 600px)').matches)
+
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 600px)')
+    const handler = (e) => setIsMobileLayout(e.matches)
+    mq.addEventListener('change', handler)
+    return () => mq.removeEventListener('change', handler)
+  }, [])
   const [savedRounds, setSavedRounds] = useState(() =>
     JSON.parse(localStorage.getItem('mtg-rounds') || '[]')
   )
@@ -311,7 +319,11 @@ export default function App() {
     setSavedRounds(prev => prev.filter(r => r.id !== id))
   }, [])
 
-  const rotations = layout === 'sides' ? [180, -90, 90, 0] : [180, 180, 0, 0]
+  const rotations = layout === 'sides'
+    ? [180, 90, -90, 0]
+    : isMobileLayout
+      ? [90, -90, 90, -90]
+      : [180, 180, 0, 0]
 
   const editingPlayerRotation = editingPlayer
     ? rotations[players.findIndex(p => p.id === editingPlayer.id)]
