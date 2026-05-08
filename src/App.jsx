@@ -369,6 +369,7 @@ export default function App() {
           title={editingPlayer.mode === 'commander' ? 'COMMANDER' : 'NAME ÄNDERN'}
           onClose={() => setEditingPlayer(null)}
           rotation={editingPlayerRotation}
+          hasKeyboard={Math.abs(editingPlayerRotation) === 90}
         >
           <div className="modal-content">
             <input
@@ -376,10 +377,19 @@ export default function App() {
               value={tempName}
               onChange={e => setTempName(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && saveName()}
-              autoFocus
+              autoFocus={Math.abs(editingPlayerRotation) !== 90}
+              inputMode={Math.abs(editingPlayerRotation) === 90 ? 'none' : 'text'}
               maxLength={24}
               placeholder={editingPlayer.mode === 'commander' ? 'Commander-Name...' : ''}
             />
+            {Math.abs(editingPlayerRotation) === 90 && (
+              <MobileKeyboard
+                value={tempName}
+                onChange={setTempName}
+                onEnter={saveName}
+                maxLength={24}
+              />
+            )}
             <div className="modal-buttons">
               <button onClick={saveName}>Speichern</button>
               <button onClick={() => setEditingPlayer(null)}>Abbrechen</button>
@@ -429,7 +439,7 @@ export default function App() {
       )}
 
       {editingPlayer && editingPlayer.mode === 'counters' && (
-        <Modal title="ZÄHLER" onClose={() => setEditingPlayer(null)} rotation={editingPlayerRotation}>
+        <Modal title="ZÄHLER" onClose={() => setEditingPlayer(null)} rotation={editingPlayerRotation} hasKeyboard={Math.abs(editingPlayerRotation) === 90}>
           <CountersPanel
             player={players.find(p => p.id === editingPlayer.id)}
             onAdjustPoison={(delta) => adjustPoison(editingPlayer.id, delta)}
@@ -442,6 +452,7 @@ export default function App() {
             onAddCustom={(type, label) => addCustomTracker(editingPlayer.id, type, label)}
             onRemoveCustom={(trackerId) => removeCustomTracker(editingPlayer.id, trackerId)}
             onClose={() => setEditingPlayer(null)}
+            rotation={editingPlayerRotation}
           />
         </Modal>
       )}
@@ -723,10 +734,11 @@ function CmdDmgPanel({ victimId, players, cmdDmg, onAdjust, onClose }) {
   )
 }
 
-function CountersPanel({ player, onAdjustPoison, onAdjustExperience, onSetMonarch, onSetInitiative, onToggleCitysBlessing, onAdjustCustom, onToggleCustom, onAddCustom, onRemoveCustom, onClose }) {
+function CountersPanel({ player, onAdjustPoison, onAdjustExperience, onSetMonarch, onSetInitiative, onToggleCitysBlessing, onAdjustCustom, onToggleCustom, onAddCustom, onRemoveCustom, onClose, rotation = 0 }) {
   const [adding, setAdding] = useState(false)
   const [newLabel, setNewLabel] = useState('')
   const [newType, setNewType] = useState('counter')
+  const is90 = Math.abs(rotation) === 90
 
   const handleAdd = () => {
     if (!newLabel.trim()) return
@@ -798,8 +810,17 @@ function CountersPanel({ player, onAdjustPoison, onAdjustExperience, onSetMonarc
             onKeyDown={e => e.key === 'Enter' && handleAdd()}
             placeholder="Name..."
             maxLength={16}
-            autoFocus
+            autoFocus={!is90}
+            inputMode={is90 ? 'none' : 'text'}
           />
+          {is90 && (
+            <MobileKeyboard
+              value={newLabel}
+              onChange={setNewLabel}
+              onEnter={handleAdd}
+              maxLength={16}
+            />
+          )}
           <div className="tracker-type-row">
             <button
               className={`type-btn${newType === 'counter' ? ' active' : ''}`}
@@ -832,7 +853,52 @@ function CountersPanel({ player, onAdjustPoison, onAdjustExperience, onSetMonarc
   )
 }
 
-function Modal({ title, children, onClose, rotation = 0 }) {
+const KB_ALPHA = [
+  ['Q','W','E','R','T','Z','U','I','O','P'],
+  ['A','S','D','F','G','H','J','K','L'],
+  ['Y','X','C','V','B','N','M','⌫'],
+  ['123','LEER','↵']
+]
+const KB_NUM = [
+  ['1','2','3','4','5','6','7','8','9','0'],
+  ['-','_','.', ',','\'','"','!','?','ä','ö'],
+  ['ü','Ä','Ö','Ü','ß','ABC','⌫','↵']
+]
+
+function MobileKeyboard({ value, onChange, onEnter, maxLength = 24 }) {
+  const [mode, setMode] = useState('alpha')
+  const rows = mode === 'alpha' ? KB_ALPHA : KB_NUM
+
+  const tap = (key) => {
+    if (key === '⌫') { onChange(value.slice(0, -1)); return }
+    if (key === '↵') { onEnter(); return }
+    if (key === '123') { setMode('num'); return }
+    if (key === 'ABC') { setMode('alpha'); return }
+    if (key === 'LEER') { if (value.length < maxLength) onChange(value + ' '); return }
+    if (value.length < maxLength) onChange(value + key)
+  }
+
+  return (
+    <div className="mobile-kb">
+      {rows.map((row, ri) => (
+        <div key={ri} className="mobile-kb-row">
+          {row.map(key => (
+            <button
+              key={key}
+              type="button"
+              className={`mobile-kb-key${key === 'LEER' ? ' kb-space' : ''}${key === '↵' ? ' kb-enter' : ''}${key === '⌫' ? ' kb-back' : ''}${(key === '123' || key === 'ABC') ? ' kb-mode' : ''}`}
+              onPointerDown={e => { e.preventDefault(); tap(key) }}
+            >
+              {key === 'LEER' ? '␣' : key}
+            </button>
+          ))}
+        </div>
+      ))}
+    </div>
+  )
+}
+
+function Modal({ title, children, onClose, rotation = 0, hasKeyboard = false }) {
   const is90 = Math.abs(rotation) === 90
   return (
     <div className="modal-overlay" onClick={e => e.target === e.currentTarget && onClose()}>
@@ -847,7 +913,7 @@ function Modal({ title, children, onClose, rotation = 0 }) {
           <span>&gt; {title}</span>
           <span className="modal-close" onClick={onClose}>×</span>
         </div>
-        <div className="modal-body" style={is90 ? { maxHeight: '70vw' } : undefined}>
+        <div className="modal-body" style={is90 && !hasKeyboard ? { maxHeight: '70vw' } : undefined}>
           {children}
         </div>
       </div>
