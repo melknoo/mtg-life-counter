@@ -126,7 +126,7 @@ function ToggleSwitch({ active, onChange }) {
   )
 }
 
-const PLAYER_COLORS = ['#F2D49B', '#E88A8A', '#C8B4E0', '#A8C4E8']
+const PLAYER_COLORS = ['#F2D49B', '#E88A8A', '#C8B4E0', '#A8C4E8', '#B8D8B8', '#F2B989']
 
 const PRESET_COLORS = [
   '#F2D49B', '#E88A8A', '#C8B4E0', '#A8C4E8',
@@ -136,26 +136,34 @@ const PRESET_COLORS = [
 
 const STARTING_LIFE = 40
 
-const makeInitialPlayers = () => [
-  { id: 0, name: 'Spieler 1', life: STARTING_LIFE, color: PLAYER_COLORS[0], commander: '', poison: 0, experience: 0, isMonarch: false, hasInitiative: false, hasCitysBlessing: false, customTrackers: [] },
-  { id: 1, name: 'Spieler 2', life: STARTING_LIFE, color: PLAYER_COLORS[1], commander: '', poison: 0, experience: 0, isMonarch: false, hasInitiative: false, hasCitysBlessing: false, customTrackers: [] },
-  { id: 2, name: 'Spieler 3', life: STARTING_LIFE, color: PLAYER_COLORS[2], commander: '', poison: 0, experience: 0, isMonarch: false, hasInitiative: false, hasCitysBlessing: false, customTrackers: [] },
-  { id: 3, name: 'Spieler 4', life: STARTING_LIFE, color: PLAYER_COLORS[3], commander: '', poison: 0, experience: 0, isMonarch: false, hasInitiative: false, hasCitysBlessing: false, customTrackers: [] },
-]
+const makeInitialPlayers = (count = 4) =>
+  Array.from({ length: count }, (_, i) => ({
+    id: i, name: `Spieler ${i + 1}`, life: STARTING_LIFE, color: PLAYER_COLORS[i],
+    commander: '', poison: 0, experience: 0, isMonarch: false, hasInitiative: false,
+    hasCitysBlessing: false, customTrackers: [],
+  }))
 
-const initCmdDmg = () => {
+const initCmdDmg = (count = 4) => {
   const d = {}
-  for (let i = 0; i < 4; i++) {
+  for (let i = 0; i < count; i++) {
     d[i] = {}
-    for (let j = 0; j < 4; j++) {
-      if (i !== j) d[i][j] = 0
-    }
+    for (let j = 0; j < count; j++) if (i !== j) d[i][j] = 0
   }
   return d
 }
 
+const TOP_COUNT = { 2: 1, 3: 2, 4: 2, 5: 2, 6: 3 }
+
+const getRotations = (count, layout, isMobile) => {
+  if (layout === 'sides' && count === 4) return [180, 90, -90, 0]
+  if (isMobile && count === 4) return [90, -90, 90, -90]
+  const topCount = TOP_COUNT[count] ?? Math.ceil(count / 2)
+  return Array.from({ length: count }, (_, i) => (i < topCount ? 180 : 0))
+}
+
 export default function App() {
   const [currentView, setCurrentView] = useState('home')
+  const [playerCount, setPlayerCount] = useState(4)
   const [players, setPlayers] = useState(makeInitialPlayers)
   const [cmdDmg, setCmdDmg] = useState(initCmdDmg)
   const [editingPlayer, setEditingPlayer] = useState(null)
@@ -167,6 +175,7 @@ export default function App() {
   const [savingRound, setSavingRound] = useState(false)
   const [tempRoundName, setTempRoundName] = useState('')
   const [isMobileLayout, setIsMobileLayout] = useState(() => window.matchMedia('(max-width: 600px)').matches)
+  const wakeLockRef = useRef(null)
 
   useEffect(() => {
     const mq = window.matchMedia('(max-width: 600px)')
@@ -174,6 +183,34 @@ export default function App() {
     mq.addEventListener('change', handler)
     return () => mq.removeEventListener('change', handler)
   }, [])
+
+  useEffect(() => {
+    if (!('wakeLock' in navigator)) return
+    let cancelled = false
+    const acquire = async () => {
+      try {
+        wakeLockRef.current = await navigator.wakeLock.request('screen')
+        wakeLockRef.current.addEventListener('release', () => { wakeLockRef.current = null })
+      } catch {}
+    }
+    const onVisibility = () => {
+      if (document.visibilityState === 'visible' && !cancelled) acquire()
+    }
+    if (currentView === 'game') {
+      acquire()
+      document.addEventListener('visibilitychange', onVisibility)
+    }
+    return () => {
+      cancelled = true
+      document.removeEventListener('visibilitychange', onVisibility)
+      wakeLockRef.current?.release()
+      wakeLockRef.current = null
+    }
+  }, [currentView])
+
+  useEffect(() => {
+    if (playerCount !== 4 && layout === 'sides') setLayout('standard')
+  }, [playerCount])
   const [savedRounds, setSavedRounds] = useState(() =>
     JSON.parse(localStorage.getItem('mtg-rounds') || '[]')
   )
@@ -278,16 +315,12 @@ export default function App() {
 
   const resetAll = () => {
     setPlayers(prev => prev.map((p, i) => ({
-      ...makeInitialPlayers()[i],
-      color: p.color,
-      name: p.name,
-      commander: p.commander,
-      customTrackers: p.customTrackers.map(t => ({
-        ...t,
-        value: t.type === 'toggle' ? false : 0
-      }))
+      id: i, name: p.name, life: STARTING_LIFE, color: p.color,
+      commander: p.commander, poison: 0, experience: 0, isMonarch: false,
+      hasInitiative: false, hasCitysBlessing: false,
+      customTrackers: p.customTrackers.map(t => ({ ...t, value: t.type === 'toggle' ? false : 0 }))
     })))
-    setCmdDmg(initCmdDmg())
+    setCmdDmg(initCmdDmg(players.length))
     setIsDay(true)
     setEditingPlayer(null)
   }
@@ -302,16 +335,14 @@ export default function App() {
   }, [players])
 
   const loadRound = useCallback((round) => {
-    setPlayers(prev => prev.map((p, i) => ({
-      ...makeInitialPlayers()[i],
-      name: round.players[i].name,
-      color: round.players[i].color,
-      customTrackers: prev[i].customTrackers.map(t => ({
-        ...t,
-        value: t.type === 'toggle' ? false : 0
-      }))
+    const count = round.players.length
+    setPlayerCount(count)
+    setPlayers(round.players.map((rp, i) => ({
+      id: i, name: rp.name, life: STARTING_LIFE, color: rp.color,
+      commander: '', poison: 0, experience: 0, isMonarch: false,
+      hasInitiative: false, hasCitysBlessing: false, customTrackers: [],
     })))
-    setCmdDmg(initCmdDmg())
+    setCmdDmg(initCmdDmg(count))
     setIsDay(true)
   }, [])
 
@@ -319,11 +350,7 @@ export default function App() {
     setSavedRounds(prev => prev.filter(r => r.id !== id))
   }, [])
 
-  const rotations = layout === 'sides'
-    ? [180, 90, -90, 0]
-    : isMobileLayout
-      ? [90, -90, 90, -90]
-      : [180, 180, 0, 0]
+  const rotations = getRotations(players.length, layout, isMobileLayout)
 
   const editingPlayerRotation = editingPlayer
     ? rotations[players.findIndex(p => p.id === editingPlayer.id)]
@@ -335,8 +362,16 @@ export default function App() {
         <HomeScreen
           layout={layout}
           onSetLayout={setLayout}
+          playerCount={playerCount}
+          onSetPlayerCount={setPlayerCount}
           savedRounds={savedRounds}
-          onNewGame={() => { resetAll(); setCurrentView('game') }}
+          onNewGame={() => {
+            setPlayers(makeInitialPlayers(playerCount))
+            setCmdDmg(initCmdDmg(playerCount))
+            setIsDay(true)
+            setEditingPlayer(null)
+            setCurrentView('game')
+          }}
           onLoadRound={(round) => { loadRound(round); setCurrentView('game') }}
           onDeleteRound={deleteRound}
         />
@@ -346,7 +381,7 @@ export default function App() {
 
   return (
     <div className="app">
-      <div className={`grid layout-${layout}`}>
+      <div className={`grid layout-${layout} players-${players.length}`}>
         {players.map((player, idx) => (
           <div key={player.id} className="cell">
             <PlayerPanel
@@ -532,13 +567,26 @@ export default function App() {
   )
 }
 
-function HomeScreen({ layout, onSetLayout, savedRounds, onNewGame, onLoadRound, onDeleteRound }) {
+function HomeScreen({ layout, onSetLayout, playerCount, onSetPlayerCount, savedRounds, onNewGame, onLoadRound, onDeleteRound }) {
   return (
     <div className="home-screen">
       <div className="home-logo">
         <IconCrown size={52} color="#F2D49B"/>
       </div>
       <h1 className="home-title">MTG LIFE COUNTER</h1>
+
+      <div className="home-section">
+        <div className="home-section-label">Spieleranzahl</div>
+        <div className="home-player-count-btns">
+          {[2, 3, 4, 5, 6].map(n => (
+            <button
+              key={n}
+              className={`home-count-btn${playerCount === n ? ' active' : ''}`}
+              onClick={() => onSetPlayerCount(n)}
+            >{n}</button>
+          ))}
+        </div>
+      </div>
 
       <div className="home-section">
         <div className="home-section-label">Sitzordnung</div>
@@ -548,11 +596,12 @@ function HomeScreen({ layout, onSetLayout, savedRounds, onNewGame, onLoadRound, 
             onClick={() => onSetLayout('standard')}
           >
             <IconGrid size={14} color="rgba(0,0,0,0.75)"/>
-            Standard (2×2)
+            Standard
           </button>
           <button
             className={`home-layout-btn${layout === 'sides' ? ' active' : ''}`}
-            onClick={() => onSetLayout('sides')}
+            onClick={() => playerCount === 4 && onSetLayout('sides')}
+            style={playerCount !== 4 ? { opacity: 0.35, pointerEvents: 'none' } : undefined}
           >
             <IconSides size={14} color="rgba(0,0,0,0.75)"/>
             Kreuz
@@ -595,23 +644,60 @@ function HomeScreen({ layout, onSetLayout, savedRounds, onNewGame, onLoadRound, 
 function PlayerPanel({ player, rotation, onAdjust, onOpenEdit, cmdDmgTotal }) {
   const holdTimerRef = useRef(null)
   const holdIntervalRef = useRef(null)
+  const deltaTimerRef = useRef(null)
+  const fadeTimerRef = useRef(null)
+  const isHoldRef = useRef(false)
+  const pendingDeltaRef = useRef(0)
+  const applyDeltaRef = useRef(null)
   const [menuOpen, setMenuOpen] = useState(false)
+  const [lifeDelta, setLifeDelta] = useState(0)
+  const [deltaVisible, setDeltaVisible] = useState(false)
+  const [deltaFading, setDeltaFading] = useState(false)
+
+  useEffect(() => () => {
+    clearTimeout(deltaTimerRef.current)
+    clearTimeout(fadeTimerRef.current)
+    clearTimeout(holdTimerRef.current)
+    clearInterval(holdIntervalRef.current)
+  }, [])
 
   const handleMenuAction = (editType) => {
     setMenuOpen(false)
     onOpenEdit(editType)
   }
 
-  const startAdjust = (delta) => {
-    onAdjust(delta)
+  const startAdjust = (d) => {
+    const applyDelta = (amount) => {
+      onAdjust(amount)
+      setLifeDelta(prev => (prev > 0 && amount < 0) || (prev < 0 && amount > 0) ? amount : prev + amount)
+      setDeltaVisible(true)
+      setDeltaFading(false)
+      clearTimeout(deltaTimerRef.current)
+      clearTimeout(fadeTimerRef.current)
+      deltaTimerRef.current = setTimeout(() => {
+        setDeltaFading(true)
+        fadeTimerRef.current = setTimeout(() => {
+          setDeltaVisible(false)
+          setLifeDelta(0)
+          setDeltaFading(false)
+        }, 400)
+      }, 1800)
+    }
+    applyDeltaRef.current = applyDelta
+    isHoldRef.current = false
+    pendingDeltaRef.current = d
     holdTimerRef.current = setTimeout(() => {
-      holdIntervalRef.current = setInterval(() => onAdjust(delta > 0 ? 10 : -10), 150)
+      isHoldRef.current = true
+      holdIntervalRef.current = setInterval(() => applyDelta(d > 0 ? 10 : -10), 300)
     }, 500)
   }
 
   const stopAdjust = () => {
     clearTimeout(holdTimerRef.current)
     clearInterval(holdIntervalRef.current)
+    if (!isHoldRef.current) applyDeltaRef.current?.(pendingDeltaRef.current)
+    isHoldRef.current = false
+    applyDeltaRef.current = null
   }
 
   const hasCustomActive = player.customTrackers.some(t =>
@@ -649,6 +735,11 @@ function PlayerPanel({ player, rotation, onAdjust, onOpenEdit, cmdDmgTotal }) {
           <div className="commander-name">&gt; {player.commander}</div>
         )}
         <div className="life-total">{player.life}</div>
+        {deltaVisible && (
+          <div className={`life-delta${lifeDelta >= 0 ? ' positive' : ' negative'}${deltaFading ? ' fading' : ''}`}>
+            {lifeDelta > 0 ? `+${lifeDelta}` : `${lifeDelta}`}
+          </div>
+        )}
         {hasStatus && (
           <div className="panel-status">
             {player.poison > 0 && (

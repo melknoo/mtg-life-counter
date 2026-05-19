@@ -54,6 +54,7 @@ html, body, #root {
 }
 
 .panel-center {
+  position: relative;
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -61,6 +62,36 @@ html, body, #root {
   justify-content: center;
   gap: 6px;
   padding: 0 38%;
+}
+
+.life-delta {
+  position: absolute;
+  top: 18%;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: 'Jersey 10', 'VT323', 'Courier New', monospace;
+  font-size: 38px;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  pointer-events: none;
+  z-index: 2;
+  opacity: 1;
+  transition: opacity 0.4s;
+  white-space: nowrap;
+}
+
+.life-delta.positive {
+  color: rgba(0, 90, 0, 0.9);
+  text-shadow: 2px 2px 0 rgba(255,255,255,0.5);
+}
+
+.life-delta.negative {
+  color: rgba(130, 0, 0, 0.9);
+  text-shadow: 2px 2px 0 rgba(255,255,255,0.5);
+}
+
+.life-delta.fading {
+  opacity: 0;
 }
 
 .player-name {
@@ -701,6 +732,35 @@ html, body, #root {
   transform: translate(-50%, -50%) rotate(-90deg) !important;
 }
 
+/* Variable player count layouts */
+.grid.players-2 {
+  grid-template-columns: 1fr;
+  grid-template-rows: 1fr 1fr;
+}
+
+.grid.players-3 {
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+}
+
+.grid.players-3 .cell:nth-child(3) {
+  grid-column: 1 / -1;
+}
+
+.grid.players-5 {
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr 1fr;
+}
+
+.grid.players-5 .cell:nth-child(5) {
+  grid-column: 1 / -1;
+}
+
+.grid.players-6 {
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+}
+
 /* Mobile: panels rotated 90° so players sit on the sides */
 @media (max-width: 600px) {
   .cell {
@@ -708,7 +768,7 @@ html, body, #root {
     overflow: hidden;
   }
 
-  .grid.layout-standard .cell:nth-child(odd) .player-panel {
+  .grid.layout-standard.players-4 .cell:nth-child(odd) .player-panel {
     position: absolute;
     width: 50vh;
     height: 50vw;
@@ -717,7 +777,7 @@ html, body, #root {
     transform: translate(-50%, -50%) rotate(90deg) !important;
   }
 
-  .grid.layout-standard .cell:nth-child(even) .player-panel {
+  .grid.layout-standard.players-4 .cell:nth-child(even) .player-panel {
     position: absolute;
     width: 50vh;
     height: 50vw;
@@ -1023,6 +1083,39 @@ html, body, #root {
 .home-section-label::before {
   content: "> ";
   color: #444;
+}
+
+.home-player-count-btns {
+  display: flex;
+  gap: 10px;
+}
+
+.home-count-btn {
+  flex: 1;
+  background: #2a2a2a;
+  border: none;
+  color: rgba(255,255,255,0.6);
+  font-family: 'Jersey 10', 'VT323', 'Courier New', monospace;
+  font-size: 18px;
+  letter-spacing: 0.08em;
+  padding: 10px 0;
+  cursor: pointer;
+  text-align: center;
+  box-shadow:
+    inset 0 0 0 3px #000,
+    inset 3px 3px 0 3px rgba(255,255,255,0.07),
+    inset -3px -3px 0 3px rgba(0,0,0,0.4),
+    0 0 0 3px #000;
+  transition: filter 0.15s;
+}
+
+.home-count-btn.active {
+  background: #A8C4E8;
+  color: rgba(0,0,0,0.8);
+}
+
+.home-count-btn:hover {
+  filter: brightness(1.15);
 }
 
 .home-layout-btns {
